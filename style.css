@@ -1,6 +1,59 @@
 /* ══════════════════════════════════════════
    RegexLab — style.css
+   All fonts are self-hosted in ./fonts/ —
+   no internet connection required.
 ══════════════════════════════════════════ */
+
+/* ── Local fonts (files downloaded by get-fonts.sh) ── */
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Syne';
+  src: url('fonts/Syne-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Syne';
+  src: url('fonts/Syne-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Syne';
+  src: url('fonts/Syne-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Syne';
+  src: url('fonts/Syne-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -400,21 +453,51 @@ header {
 /* ── match cards ── */
 .matches-panel {
   flex: 1;
-  overflow-y: scroll;   /* always show scrollbar track */
+  overflow-y: scroll;
   overflow-x: hidden;
-  padding: 10px;
-  display: flex; flex-direction: column; gap: 7px;
-  /* cards keep their natural height; panel scrolls */
+  padding: 0;           /* virtual scroll uses absolute positioning */
+  position: relative;   /* anchor for .vs-spacer children */
 }
 
+/* Virtual scroll spacer — sized to total content height */
+.vs-spacer { position: relative; width: 100%; }
+
+/* Virtual cards are absolutely positioned inside .vs-spacer */
 .match-card {
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 7px; overflow: hidden;
   cursor: pointer; transition: border-color 0.15s;
-  flex-shrink: 0;   /* don't compress — scroll instead */
+  /* left/right/top set inline by JS */
+  box-sizing: border-box;
 }
 .match-card:hover  { border-color: var(--border2); }
 .match-card.active { border-color: var(--accent); }
+
+/* ── spinner ── */
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── truncation warning ── */
+.trunc-warning {
+  padding: 5px 12px;
+  font-family: var(--mono); font-size: 10px;
+  color: var(--amber); background: var(--amber-dim);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* ── large text highlight-disabled note ── */
+.hl-disabled-note {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text3); font-style: italic;
+}
 
 .match-card-header {
   display: flex; align-items: center; justify-content: space-between;

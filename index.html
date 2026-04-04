@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RegexLab — Regex Debugger</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="icon" type="image/x-icon" href="regexlab-favicon.ico">
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -28,6 +26,7 @@
       <div class="indicator"></div>
       <span id="match-count-text">0 matches</span>
     </div>
+    <div class="spinner" id="regex-spinner" style="display:none" aria-label="Running…"></div>
 
     <div class="theme-control">
       <span class="theme-label" id="theme-label">dark</span>
@@ -124,6 +123,7 @@
         </div>
         <div class="summary-strip">
           chars: <span id="char-count">0</span>&nbsp;&nbsp;lines: <span id="line-count">0</span>
+          <span class="hl-disabled-note" id="hl-disabled-note" style="display:none">· highlights disabled for large text</span>
         </div>
       </div><!-- /panel-text -->
 
@@ -135,13 +135,14 @@
         <div class="panel-header">
           <div class="panel-title">Match details</div>
         </div>
+        <div class="trunc-warning" id="trunc-warning" style="display:none"></div>
         <div class="matches-panel" id="matches-panel">
           <div class="empty-state" id="empty-state">
             <div class="empty-icon">◎</div>
             <div>Matches will appear here</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:3px;">
+            <divgit style="font-size:10px;color:var(--text3);margin-top:3px;">
               Enter a pattern and test string to begin
-            </div>
+            </divgit>
           </div>
           <div class="no-matches-msg" id="no-matches-msg">
             No matches found in test string
