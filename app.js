@@ -583,17 +583,6 @@ testInput.addEventListener('scroll', () => {
 });
 regexInput.addEventListener('input', run);
 
-/* ── Seed demo content ── */
-testInput.value = `The quick brown fox jumps over the lazy dog.
-Email me at hello@example.com or support@regexlab.io
-Phone: +1 (555) 867-5309 or 0031-20-555-1234
-Dates: 2024-03-15, 01/22/2025, March 5th 2024
-URLs: https://www.example.com/path?q=test&page=2
-Hex colors: #FF5733, #abc, #00ff88
-IP addresses: 192.168.1.1 and 10.0.0.255`;
-
-regexInput.value = `([a-zA-Z0-9._%+\\-]+)@([a-zA-Z0-9.\\-]+)\\.([a-zA-Z]{2,})`;
-
 updateFlagsDisplay();
 buildHelpGrid();
 run();
