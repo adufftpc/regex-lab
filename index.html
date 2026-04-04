@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RegexLab — Regex Debugger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     HEADER
+══════════════════════════════════════ -->
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    RegexLab <span>/ debugger</span>
+  </div>
+  <div class="status-bar">
+    <div class="status-pill" id="regex-status">
+      <div class="indicator"></div>
+      <span>no pattern</span>
+    </div>
+    <div class="status-pill" id="match-status" style="display:none">
+      <div class="indicator"></div>
+      <span id="match-count-text">0 matches</span>
+    </div>
+
+    <div class="theme-control">
+      <span class="theme-label" id="theme-label">dark</span>
+      <label class="theme-toggle" title="Toggle light / dark mode">
+        <input type="checkbox" id="theme-checkbox">
+        <div class="theme-toggle-track"></div>
+        <div class="theme-toggle-thumb">
+          <!-- moon icon (dark mode) -->
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+          </svg>
+          <!-- sun icon (light mode) -->
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1"  x2="12" y2="3"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="4.22" y1="4.22"   x2="5.64" y2="5.64"   stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="1"  y1="12" x2="3"  y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"   stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"   stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </label>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════
+     WORKSPACE
+══════════════════════════════════════ -->
+<div class="workspace">
+
+  <!-- ── TOP : debugger ────────────────── -->
+  <div class="debugger-area">
+
+    <!-- Expression panel (full width) -->
+    <div class="panel panel-regex">
+      <div class="panel-header">
+        <div class="panel-title">Expression</div>
+        <div class="flags-row">
+          <button class="flag-btn active" data-flag="g" title="global — find all matches">g</button>
+          <button class="flag-btn active" data-flag="m" title="multiline — ^ and $ match line starts/ends">m</button>
+          <button class="flag-btn"        data-flag="i" title="case insensitive">i</button>
+          <button class="flag-btn"        data-flag="s" title="dot all — . matches newlines too">s</button>
+          <button class="flag-btn"        data-flag="u" title="unicode mode">u</button>
+        </div>
+      </div>
+
+      <div class="regex-input-row">
+        <div class="regex-slash">/</div>
+        <div class="regex-editor-wrap">
+          <div id="regex-hl" aria-hidden="true"></div>
+          <input
+            type="text" id="regex-input"
+            placeholder="enter your regex pattern…"
+            spellcheck="false" autocomplete="off"
+            autocorrect="off" autocapitalize="off"
+          >
+        </div>
+        <div class="regex-slash" id="flags-display">/gm</div>
+      </div>
+
+      <div class="regex-error-msg" id="regex-error"></div>
+
+      <div class="legend-strip">
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--tok-group)"></div>group</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--tok-charclass)"></div>char class</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--tok-quantifier)"></div>quantifier</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--tok-anchor)"></div>anchor</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--tok-escape)"></div>escape</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--tok-alternation)"></div>alternation</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--tok-dot)"></div>wildcard</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--tok-special)"></div>lookahead/behind</div>
+      </div>
+    </div><!-- /panel-regex -->
+
+    <!-- Bottom row: test string | v-divider | match details -->
+    <div class="bottom-row">
+
+      <!-- Test string panel -->
+      <div class="panel panel-text">
+        <div class="panel-header">
+          <div class="panel-title">Test string</div>
+        </div>
+        <div class="text-area-wrapper">
+          <div id="highlighted-layer" aria-hidden="true"></div>
+          <textarea
+            id="test-input"
+            spellcheck="false"
+            placeholder="paste or type your test text here…"
+          ></textarea>
+        </div>
+        <div class="summary-strip">
+          chars: <span id="char-count">0</span>&nbsp;&nbsp;lines: <span id="line-count">0</span>
+        </div>
+      </div><!-- /panel-text -->
+
+      <!-- Vertical resize handle -->
+      <div class="v-divider" title="Drag to resize"></div>
+
+      <!-- Match details panel -->
+      <div class="panel panel-matches">
+        <div class="panel-header">
+          <div class="panel-title">Match details</div>
+        </div>
+        <div class="matches-panel" id="matches-panel">
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">◎</div>
+            <div>Matches will appear here</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;">
+              Enter a pattern and test string to begin
+            </div>
+          </div>
+          <div class="no-matches-msg" id="no-matches-msg">
+            No matches found in test string
+          </div>
+        </div>
+      </div><!-- /panel-matches -->
+
+    </div><!-- /bottom-row -->
+
+  </div><!-- /debugger-area -->
+
+  <!-- Horizontal resize handle -->
+  <div class="h-divider" title="Drag to resize"></div>
+
+  <!-- ── BOTTOM : help reference ────────── -->
+  <div class="help-area">
+    <div class="help-header">
+      <div class="help-title-row">
+        <div class="help-title">Regex reference</div>
+        <div class="category-tabs" id="cat-tabs">
+          <button class="cat-tab active" data-cat="all">all</button>
+          <button class="cat-tab" data-cat="anchors">anchors</button>
+          <button class="cat-tab" data-cat="quantifiers">quantifiers</button>
+          <button class="cat-tab" data-cat="groups">groups</button>
+          <button class="cat-tab" data-cat="charclass">char classes</button>
+          <button class="cat-tab" data-cat="escapes">escapes</button>
+          <button class="cat-tab" data-cat="lookaround">lookaround</button>
+          <button class="cat-tab" data-cat="flags">flags</button>
+        </div>
+      </div>
+      <div class="help-search-wrap">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="6.5" cy="6.5" r="4.5"/>
+          <line x1="10.5" y1="10.5" x2="14" y2="14"/>
+        </svg>
+        <input type="text" id="help-search" placeholder="search…" autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+
+    <div class="help-body">
+      <div class="help-grid" id="help-grid"></div>
+      <div class="help-no-results" id="help-no-results">
+        No results for "<span id="help-no-q"></span>"
+      </div>
+    </div>
+  </div><!-- /help-area -->
+
+</div><!-- /workspace -->
+
+<script src="app.js"></script>
+</body>
+</html>
