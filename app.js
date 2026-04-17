@@ -666,19 +666,11 @@ function renderVisibleCards() {
     spacer.appendChild(card);
     vsRendered.set(i, card);
 
+    /* Calibrate row height after first real render */
     if (i === 0) {
       const realHeight = card.getBoundingClientRect().height;
-      if (realHeight > 0) {
-        vsRowHeight = realHeight + CARD_GAP;
-      }
+      if (realHeight > 0) vsRowHeight = realHeight + CARD_GAP;
     }
-  }
-
-  /* Calibrate row height after first real render */
-  if (vsRendered.size > 0 && vsRowHeight === CARD_HEIGHT + CARD_GAP) {
-    const first = vsRendered.values().next().value;
-    const h = first.getBoundingClientRect().height;
-    if (h > 0) vsRowHeight = h + CARD_GAP;
   }
 }
 
