@@ -11,7 +11,7 @@
   const html     = document.documentElement;
   const checkbox = document.getElementById('theme-checkbox');
   const label    = document.getElementById('theme-label');
-  const saved    = localStorage.getItem('regexlab-theme') || 'dark';
+  const saved    = localStorage.getItem('regexlab-theme') || 'light';
   applyTheme(saved);
   checkbox.addEventListener('change', () => applyTheme(checkbox.checked ? 'light' : 'dark'));
   function applyTheme(t) {
@@ -46,6 +46,7 @@
     debuggerArea.style.height = debugH + 'px';
     helpArea.style.height     = (h - debugH - divH) + 'px';
   }
+
   function applyW() {
     const w = bottomRow().clientWidth;
     if (!matchW) matchW = Math.round(w * 0.36);
@@ -57,13 +58,16 @@
   applyH(); applyW();
   window.addEventListener('resize', () => { applyH(); applyW(); });
 
-  function drag(divider, bodyCls, getNewSize) {
+  function drag(divider, bodyCls, getStartSize, getNewSize) {
     divider.addEventListener('mousedown', e => {
       e.preventDefault();
       divider.classList.add('dragging');
       document.body.classList.add(bodyCls);
+
       const startX = e.clientX, startY = e.clientY;
-      const move = ev => getNewSize(ev, startX, startY);
+      const startSize = getStartSize();
+
+      const move = ev => getNewSize(ev, startX, startY, startSize);
       const up   = ()  => {
         divider.classList.remove('dragging');
         document.body.classList.remove(bodyCls);
@@ -75,14 +79,29 @@
     });
   }
 
-  drag(hDivider, 'dragging-row', (e, _sx, sy) => {
-    debugH = debuggerArea.offsetHeight + (e.clientY - sy);
-    applyH();
-  });
-  drag(vDivider, 'dragging-col', (e, sx) => {
-    matchW = panelMatches.offsetWidth - (e.clientX - sx);
-    applyW();
-  });
+  // Horizontal Divider Drag
+  drag(
+      hDivider,
+      'dragging-row',
+      () => debuggerArea.getBoundingClientRect().height, // Get initial height
+      (e, _sx, sy, startH) => {
+        debugH = startH + (e.clientY - sy); // Apply total delta to initial size
+        applyH();
+      }
+  );
+
+  // Vertical Divider Drag
+  drag(
+      vDivider,
+      'dragging-col',
+      () => panelMatches.getBoundingClientRect().width, // Get initial width
+      (e, sx, _sy, startW) => {
+        // NOTE: If the panel resizes in the wrong direction (e.g. expands when
+        // it should shrink), change the `-` to a `+` on the next line.
+        matchW = startW - (e.clientX - sx); // Apply total delta to initial size
+        applyW();
+      }
+  );
 })();
 
 
@@ -646,6 +665,13 @@ function renderVisibleCards() {
     card.style.cssText += `position:absolute;top:${i * vsRowHeight}px;left:10px;right:10px;`;
     spacer.appendChild(card);
     vsRendered.set(i, card);
+
+    if (i === 0) {
+      const realHeight = card.getBoundingClientRect().height;
+      if (realHeight > 0) {
+        vsRowHeight = realHeight + CARD_GAP;
+      }
+    }
   }
 
   /* Calibrate row height after first real render */
